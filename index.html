@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cebu Disaster Alert System</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+background:#0f172a;
+color:#fff;
+}
+
+header{
+background:linear-gradient(135deg,#dc2626,#991b1b);
+padding:24px;
+text-align:center;
+}
+
+header h1{
+font-size:30px;
+margin-bottom:8px;
+}
+
+header p{
+font-size:15px;
+opacity:.95;
+}
+
+.container{
+max-width:1100px;
+margin:auto;
+padding:20px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+gap:20px;
+}
+
+.card{
+background:#1e293b;
+padding:20px;
+border-radius:16px;
+box-shadow:0 10px 25px rgba(0,0,0,.25);
+}
+
+h2{
+font-size:22px;
+margin-bottom:14px;
+}
+
+select{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#334155;
+color:#fff;
+font-size:15px;
+outline:none;
+}
+
+.info{
+background:#334155;
+padding:14px;
+border-radius:10px;
+line-height:1.7;
+}
+
+.status{
+padding:14px;
+border-radius:10px;
+font-weight:bold;
+line-height:1.6;
+}
+
+.green{background:#22c55e;color:#111;}
+.yellow{background:#facc15;color:#111;}
+.orange{background:#fb923c;color:#111;}
+.red{background:#ef4444;color:#fff;}
+
+small{
+display:block;
+margin-top:10px;
+color:#cbd5e1;
+}
+
+footer{
+text-align:center;
+padding:18px;
+color:#94a3b8;
+font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🚨 Cebu Disaster Alert System</h1>
+<p>All Cebu Cities & Municipalities</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>📍 Select Cebu Location</h2>
+<select id="place" onchange="loadAll()"></select>
+<small></small>
+</div>
+
+<div class="card">
+<h2>🌦️ Current Weather</h2>
+<div class="info" id="weatherBox">Loading...</div>
+</div>
+
+<div class="card">
+<h2>🚨 Weather Alert</h2>
+<div class="status yellow" id="alertBox">Loading...</div>
+</div>
+
+<div class="card">
+<h2>🌍 Earthquake Alert</h2>
+<div class="info" id="quakeBox">Checking latest earthquake data...</div>
+</div>
+
+<div class="card">
+<h2>📞 Emergency Numbers</h2>
+<div class="info" id="hotlineBox">
+🚓 Police: 911<br>
+🔥 Fire: 160<br>
+🚑 Ambulance: 911
+</div>
+</div>
+
+</div>
+
+<footer>
+© 2026 JM Almodal Cebu Disaster Monitoring Dashboard
+</footer>
+
+<script>
+
+
+const places = [
+
+{name:"Alcantara",lat:9.9750,lon:123.4170},
+{name:"Alcoy",lat:9.7100,lon:123.4890},
+{name:"Alegria",lat:9.7280,lon:123.3390},
+{name:"Aloguinsan",lat:10.2220,lon:123.5480},
+{name:"Argao",lat:9.8790,lon:123.5950},
+{name:"Asturias",lat:10.5660,lon:123.7160},
+
+{name:"Badian",lat:9.8670,lon:123.3960},
+{name:"Balamban",lat:10.5030,lon:123.7160},
+{name:"Bantayan",lat:11.1710,lon:123.7220},
+{name:"Barili",lat:10.1150,lon:123.5100},
+{name:"Bogo City",lat:11.0519,lon:124.0055},
+{name:"Boljoon",lat:9.6280,lon:123.4780},
+{name:"Borbon",lat:10.8390,lon:124.0280},
+
+{name:"Carcar City",lat:10.1075,lon:123.6400},
+{name:"Carmen",lat:10.5910,lon:124.0190},
+{name:"Catmon",lat:10.7170,lon:124.0000},
+{name:"Cebu City",lat:10.3157,lon:123.8854},
+{name:"Compostela",lat:10.4550,lon:124.0110},
+{name:"Consolacion",lat:10.3760,lon:123.9570},
+{name:"Cordova",lat:10.2540,lon:123.9490},
+
+{name:"Dalaguete",lat:9.7610,lon:123.5350},
+{name:"Danao City",lat:10.5200,lon:124.0270},
+{name:"Dumanjug",lat:10.0570,lon:123.4370},
+
+{name:"Ginatilan",lat:9.5970,lon:123.3440},
+
+{name:"Lapu-Lapu City",lat:10.3103,lon:123.9494},
+{name:"Liloan",lat:10.3990,lon:123.9990},
+
+{name:"Madridejos",lat:11.2710,lon:123.7390},
+{name:"Malabuyoc",lat:9.6520,lon:123.3260},
+{name:"Mandaue City",lat:10.3236,lon:123.9227},
+{name:"Medellin",lat:11.1280,lon:123.9620},
+{name:"Minglanilla",lat:10.2440,lon:123.7950},
+{name:"Moalboal",lat:9.9430,lon:123.3990},
+
+{name:"Naga City",lat:10.2085,lon:123.7580},
+
+{name:"Oslob",lat:9.5210,lon:123.4310},
+
+{name:"Pilar",lat:10.9990,lon:124.0100},
+{name:"Pinamungajan",lat:10.2710,lon:123.5830},
+{name:"Poro",lat:10.6430,lon:124.4090},
+
+{name:"Ronda",lat:9.9990,lon:123.4000},
+
+{name:"Samboan",lat:9.5210,lon:123.3300},
+{name:"San Fernando",lat:10.1620,lon:123.7070},
+{name:"San Francisco",lat:10.6430,lon:124.4720},
+{name:"San Remigio",lat:11.0800,lon:123.9400},
+{name:"Santa Fe",lat:11.1600,lon:123.7980},
+{name:"Santander",lat:9.4250,lon:123.3340},
+{name:"Sibonga",lat:10.0300,lon:123.6150},
+{name:"Sogod",lat:10.9800,lon:124.0360},
+
+{name:"Tabogon",lat:10.9390,lon:124.0280},
+{name:"Tabuelan",lat:10.8210,lon:123.8680},
+{name:"Talisay City",lat:10.2447,lon:123.8494},
+{name:"Toledo City",lat:10.3770,lon:123.6380},
+{name:"Tuburan",lat:10.7270,lon:123.8250},
+{name:"Tudela",lat:10.6430,lon:124.4720}
+
+];
+
+// Populate dropdown
+const select = document.getElementById("place");
+
+places.forEach((p,i)=>{
+let opt=document.createElement("option");
+opt.value=i;
+opt.text=p.name;
+select.appendChild(opt);
+});
+
+// Main load
+function loadAll(){
+let p = places[select.value];
+loadWeather(p);
+loadQuake();
+
+document.getElementById("hotlineBox").innerHTML =
+"🚓 Police: 911<br>" +
+"🔥 Fire: 160<br>" +
+"🚑 Ambulance: 911<br>" +
+"🏛️ Local DRRMO: " + p.name;
+}
+
+// WEATHER API
+async function loadWeather(p){
+try{
+let url=`https://api.open-meteo.com/v1/forecast?latitude=${p.lat}&longitude=${p.lon}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&timezone=auto`;
+
+let res = await fetch(url);
+let data = await res.json();
+
+let w = data.current;
+
+document.getElementById("weatherBox").innerHTML =
+"📍 " + p.name + "<br>" +
+"🌡️ Temp: " + w.temperature_2m + "°C<br>" +
+"💧 Humidity: " + w.relative_humidity_2m + "%<br>" +
+"🌧️ Rain: " + w.precipitation + " mm<br>" +
+"💨 Wind: " + w.wind_speed_10m + " km/h";
+
+let text="🟢 Normal Conditions";
+let cls="green";
+
+if(w.precipitation>=2){
+text="🟡 Rain Advisory";
+cls="yellow";
+}
+
+if(w.precipitation>=8 || w.wind_speed_10m>=35){
+text="🟠 Heavy Rain / Strong Wind Warning";
+cls="orange";
+}
+
+if(w.precipitation>=15 || w.wind_speed_10m>=55){
+text="🔴 Severe Weather Alert";
+cls="red";
+}
+
+let alertBox=document.getElementById("alertBox");
+alertBox.className="status " + cls;
+alertBox.innerHTML=text + "<br><br>📍 " + p.name;
+
+}catch(e){
+document.getElementById("weatherBox").innerHTML="Unable to load weather data.";
+}
+}
+
+// EARTHQUAKE API
+async function loadQuake(){
+try{
+let res = await fetch("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson");
+let data = await res.json();
+
+let found = data.features.find(q=>{
+let lon=q.geometry.coordinates[0];
+let lat=q.geometry.coordinates[1];
+return lat>=8.5 && lat<=12.5 && lon>=122 && lon<=126;
+});
+
+if(found){
+document.getElementById("quakeBox").innerHTML =
+"📏 Magnitude: " + found.properties.mag + "<br>" +
+"📍 Epicenter: " + found.properties.place + "<br>" +
+"🕒 " + new Date(found.properties.time).toLocaleString();
+}else{
+document.getElementById("quakeBox").innerHTML =
+"No recent nearby earthquake affecting Cebu.";
+}
+
+}catch(e){
+document.getElementById("quakeBox").innerHTML =
+"Unable to load earthquake feed.";
+}
+}
+
+// Auto first load
+loadAll();
+
+</script>
+
+</body>
+</html>
